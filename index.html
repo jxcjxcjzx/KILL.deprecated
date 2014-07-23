@@ -8,48 +8,46 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
-        <div id="left"><div id="editor" class=".editor"></div>
+    <h1>KILL workspace // Kimmy's Interpreter for Lambda the Limited</h1>
+    <p>Press `F12` or open browser console to see <strong>trace</strong></p>
+        <div class="clear"></div>
+        <div id="left">
+<div id="editor">let fib := \i -> \m -> \n ->
+    if is_zero i then id m else fib (pred i) n (add m n)
+
+trace (fib 101 1 1)
+
+let fact := \i -> \f ->
+    if is_zero i then id f else fact (pred i) (mul i f)
+
+trace (fact 20 1)
+</div>
         <button onclick="dump()">DUMP</button>
-        <button onclick="cleanup();run(reval(),output)">EVAL</button>
+        <button onclick="run(reval())">EVAL</button>
         </div>
         <div id="ast"></div>
-        <div id="trace"></div>
         <div id="env"></div>
         <div class="clear"></div>
         <script type="text/javascript">
             function dump(){
-                ace.edit("ast").setValue(jsDump.parse(kill.parser.parse(ace.edit("editor").getValue())));
+                ace.edit("ast").setValue(jsDump.parse(kill.parser.parse(ace.edit("editor").getValue().replace(/\r\n?/g,"\n"))));
             }
             function reval(){
-                return kill.parser.parse(ace.edit("editor").getValue());
-            }
-            function output(data, scope){
-                var editor = ace.edit(scope);
-                if(scope == "env"){
-                    editor.setValue(jsDump.parse(data));
-                } else if(scope == "trace"){
-                    editor.setValue(editor.getValue() + data.toString() + "\n");
-                }
-            }
-            function cleanup(){
-                ace.edit("trace").setValue("");
+                return kill.parser.parse(ace.edit("editor").getValue().replace(/\r\n?/g,"\n"));
             }
         </script>
         <script>
             var editor = ace.edit("editor");
             var ast = ace.edit("ast");
-            var trace = ace.edit("trace");
             var env = ace.edit("env");
 
             editor.setTheme("ace/theme/monokai");
             editor.getSession().setMode("ace/mode/haskell");
             
             ast.setTheme("ace/theme/chrome");
-            ast.setMode("ast/mode/javascript");
+            ast.getSession().setMode("ast/mode/javascript");
             ast.setShowPrintMargin(false);
             ast.setReadOnly(true);
-            
-            con.setTheme("ace/theme/monokai");
 
             env.setTheme("ace/theme/chrome")
         </script>

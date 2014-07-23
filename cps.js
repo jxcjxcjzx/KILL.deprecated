@@ -85,21 +85,28 @@ var env1 = {
         return function(x) { return ctx(x-1); };
     },
     add: function(ctx){
-        return function(x) { return function(cty) {return function(y){ cty(ctx(x)+y); };};};
+        return function(x) { return ctx(function(ctx) {return function(y){ ctx(x+y); };});};
+    },
+    mul: function(ctx){
+        return function(x) { return ctx(function(ctx) {return function(y){ ctx(x*y); };});};
+    },
+    pow: function(ctx){
+        return function(x) { return ctx(function(ctx) {return function(y){ ctx(Math.pow(x,y)); };});};
+    },
+    sub: function(ctx){
+        return function(x) { return ctx(function(ctx) {return function(y){ ctx(x-y); };});};
     },
     id: function(ctx){
         return function(x) { return ctx(x); };
     }
 }
 
-function run(sequences, output_cb, env, ctx){
+function run(sequences, env, ctx){
     var env = env || _.extend(env0,env1);
-    if(output_cb) env.trace = function(ctx){ return function(x) { output_cb(ctx(x),"trace"); return ctx(x); }; };
     var ctx = ctx || id;
     var e = Object.create(env);
     for(var i = 0; i < sequences.length; i++){
         interpret(sequences[i], e, ctx);
-        if(output_cb) output_cb(env, "env");
     }
     return e;
 }

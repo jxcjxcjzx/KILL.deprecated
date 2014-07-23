@@ -90,8 +90,8 @@ kill.parser = (function() {
         peg$c52 = { type: "literal", value: "else", description: "\"else\"" },
         peg$c53 = "begin",
         peg$c54 = { type: "literal", value: "begin", description: "\"begin\"" },
-        peg$c55 = "#",
-        peg$c56 = { type: "literal", value: "#", description: "\"#\"" },
+        peg$c55 = "--",
+        peg$c56 = { type: "literal", value: "--", description: "\"--\"" },
         peg$c57 = ":=",
         peg$c58 = { type: "literal", value: ":=", description: "\":=\"" },
         peg$c59 = "->",
@@ -1433,9 +1433,9 @@ kill.parser = (function() {
     function peg$parset_comment() {
       var s0;
 
-      if (input.charCodeAt(peg$currPos) === 35) {
+      if (input.substr(peg$currPos, 2) === peg$c55) {
         s0 = peg$c55;
-        peg$currPos++;
+        peg$currPos += 2;
       } else {
         s0 = peg$FAILED;
         if (peg$silentFails === 0) { peg$fail(peg$c56); }

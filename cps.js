@@ -75,6 +75,8 @@ var env0 = {
 };
 
 var env1 = {
+
+/** Arithmetic functions */
     succ: function(ctx){
         return function(x) { return ctx(x+1); };
     },
@@ -85,16 +87,46 @@ var env1 = {
         return function(x) { return ctx(x-1); };
     },
     add: function(ctx){
-        return function(x) { return ctx(function(ctx) {return function(y){ ctx(x+y); };});};
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(x+y); };});};
     },
     mul: function(ctx){
-        return function(x) { return ctx(function(ctx) {return function(y){ ctx(x*y); };});};
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(x*y); };});};
     },
     pow: function(ctx){
-        return function(x) { return ctx(function(ctx) {return function(y){ ctx(Math.pow(x,y)); };});};
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(Math.pow(x,y)); };});};
     },
     sub: function(ctx){
-        return function(x) { return ctx(function(ctx) {return function(y){ ctx(x-y); };});};
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(x-y); };});};
+    },
+
+/** Relation functions */
+    equal: function(ctx) {
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(x === y);};});};
+    },
+    ne: function(ctx) {
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(x !== y);};});};
+    },
+    gt: function(ctx) {
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(x > y);};});};
+    },
+    ge: function(ctx) {
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(x >= y);};});};
+    },
+    lt: function(ctx) {
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(x < y);};});};
+    },
+    le: function(ctx) {
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(x <= y);};});};
+    },
+/** Logical functions */
+    not: function(ctx) {
+        return function(x) { return ctx(!x); };
+    },
+    and: function(ctx) {
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(x && y);};});};
+    },
+    or: function(ctx) {
+        return function(x) { return ctx(function(ctx) {return function(y){ return ctx(x || y);};});};
     },
     id: function(ctx){
         return function(x) { return ctx(x); };

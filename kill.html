@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <script type="text/javascript" src="underscore.js"></script>
+        <script type="text/javascript" src="kill.parser.js"></script>
+        <script type="text/javascript" src="jsDump.js"></script>
+        <script type="text/javascript" src="cps.js"></script>
+        <script type="text/javascript" src="ace-builds-1.1.5-min-noconflict/ace.js"></script>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div id="left"><div id="editor" class=".editor"></div>
+        <button onclick="dump()">DUMP</button>
+        <button onclick="cleanup();run(reval(),output)">EVAL</button>
+        </div>
+        <div id="ast"></div>
+        <div id="trace"></div>
+        <div id="env"></div>
+        <div class="clear"></div>
+        <script type="text/javascript">
+            function dump(){
+                ace.edit("ast").setValue(jsDump.parse(kill.parser.parse(ace.edit("editor").getValue())));
+            }
+            function reval(){
+                return kill.parser.parse(ace.edit("editor").getValue());
+            }
+            function output(data, scope){
+                var editor = ace.edit(scope);
+                if(scope == "env"){
+                    editor.setValue(jsDump.parse(data));
+                } else if(scope == "trace"){
+                    editor.setValue(editor.getValue() + data.toString() + "\n");
+                }
+            }
+            function cleanup(){
+                ace.edit("trace").setValue("");
+            }
+        </script>
+        <script>
+            var editor = ace.edit("editor");
+            var ast = ace.edit("ast");
+            var trace = ace.edit("trace");
+            var env = ace.edit("env");
+
+            editor.setTheme("ace/theme/monokai");
+            editor.getSession().setMode("ace/mode/haskell");
+            
+            ast.setTheme("ace/theme/chrome");
+            ast.setMode("ast/mode/javascript");
+            ast.setShowPrintMargin(false);
+            ast.setReadOnly(true);
+            
+            con.setTheme("ace/theme/monokai");
+
+            env.setTheme("ace/theme/chrome")
+        </script>
+    </body>
+</html>

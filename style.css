@@ -1,0 +1,24 @@
+#left{
+    float: left;
+    display: inline;
+}
+.clear{
+    clear: both;
+}
+#editor {
+    width: 500px;
+    height: 500px;
+}
+#ast {
+    width: 500px;
+    height: 300px;
+}
+#trace {
+    float:left;
+    width: 300px;
+    height: 200px;
+}
+#env {
+    width: 200px;
+    height: 200px;
+}

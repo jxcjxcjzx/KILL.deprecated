@@ -36,6 +36,18 @@ function interpret(form, env, ctx){
                 for(var i = 0; i < items.length; i++)
                     env[items[i][0]] = interpret(items[i][1],env,ctx);
                 return ctx(env);
+            };
+            case 'set!': {
+                var item = form[1];
+                var val = form[2]
+                env[item] = interpret(val, env, ctx);
+                return ctx(env[item]);
+            };
+            case 'begin': {
+                var value;
+                for(var i = 1; i < form.length; i++)
+                    value = interpret(form[i], env, ctx);
+                return value;
             }
             default: {
                 return interpretCall(form, env, ctx);
@@ -70,8 +82,8 @@ function id(x){ return x }
 var env0 = {
     trace: function(ctx){
         return function(x) { return ctx(console.log(x)) }},
-    begin: function(ctx){
-        return function(x$) { return ctx(arguments[arguments.length - 1]) }}
+    // begin: function(ctx){
+    //     return function(x$) { console.log(arguments);return ctx(arguments[arguments.length - 1]) }}
 };
 
 var env1 = {

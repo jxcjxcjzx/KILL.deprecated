@@ -30,10 +30,19 @@ trace (fact 20 1)
         <div class="clear"></div>
         <script type="text/javascript">
             function dump(){
-                ace.edit("ast").setValue(jsDump.parse(kill.parser.parse(ace.edit("editor").getValue().replace(/\r\n?/g,"\n"))));
+                try{
+                    ace.edit("ast").setValue(jsDump.parse(kill.parser.parse(ace.edit("editor").getValue().replace(/\r\n?/g,"\n"))))
+                }catch(e){
+                    console.log(e);
+                }
             }
             function reval(){
-                return kill.parser.parse(ace.edit("editor").getValue().replace(/\r\n?/g,"\n"));
+                try{
+                    return kill.parser.parse(ace.edit("editor").getValue().replace(/\r\n?/g,"\n"));    
+                }catch(e){
+                    console.log(e);
+                }
+                
             }
         </script>
         <script>

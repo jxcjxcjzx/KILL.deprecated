@@ -41,11 +41,12 @@ function interpret(form, env, ctx){
             case 'set!': {
                 var item = form[1];
                 var val = form[2]
-                var result = interpret(val, env, ctx);
-                if(!env.hasOwnProperty(item)){
-                    return env.__proto__[item] = result;
-                }
-                return env[item] = result;
+                return interpret(form[2], env, function(result){
+                    if(!env.hasOwnProperty(item)){
+                        return ctx(env.__proto__[item] = result);
+                    }
+                    return ctx(env[item] = result);
+                });
             };
             case 'begin': {
                 var value;

@@ -62,7 +62,7 @@ newline = "\n"
 param = "\\" id:identifier {return id;}
  
 identifier = 
-  id:[_a-zA-Z?!+\-*/%\^\$\&]+ &{return ["if","let","begin", "then", "else", "set!"].indexOf(id.join("")) == -1 }
+  id:[_a-zA-Z?!+\-*/%\^\$\&]+ &{return ["if","let","begin", "then", "else", "set!", "--"].indexOf(id.join("")) == -1 }
   { return id.join("");}
  
 var = identifier

@@ -69,7 +69,7 @@ kill.parser = (function() {
         peg$c31 = function(id) {return id;},
         peg$c32 = /^[_a-zA-Z?!+\-*\/%\^$&]/,
         peg$c33 = { type: "class", value: "[_a-zA-Z?!+\\-*\\/%\\^$&]", description: "[_a-zA-Z?!+\\-*\\/%\\^$&]" },
-        peg$c34 = function(id) {return ["if","let","begin", "then", "else", "set!"].indexOf(id.join("")) == -1 },
+        peg$c34 = function(id) {return ["if","let","begin", "then", "else", "set!", "--"].indexOf(id.join("")) == -1 },
         peg$c35 = void 0,
         peg$c36 = function(id) { return id.join("");},
         peg$c37 = /^[0-9]/,

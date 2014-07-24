@@ -48,12 +48,12 @@ function interpret(form, env, ctx){
                     return ctx(env[item] = result);
                 });
             };
-            case 'begin': {
-                var value;
-                for(var i = 1; i < form.length; i++)
-                    value = interpret(form[i], env, ctx);
-                return value;
-            }
+            // case 'begin': {
+            //     var value;
+            //     for(var i = 1; i < form.length; i++)
+            //         value = interpret(form[i], env, ctx);
+            //     return value;
+            // }
             default: {
                 return interpretCall(form, env, ctx);
             };
@@ -87,8 +87,8 @@ function id(x){ return x }
 var env0 = {
     trace: function(ctx){
         return function(x) { console.log(x);return ctx(x) }},
-    // begin: function(ctx){
-    //     return function(x$) { console.log(arguments);return ctx(arguments[arguments.length - 1]) }}
+    begin: function(ctx){
+        return function(x$) {return ctx(arguments[arguments.length - 1]) }}
 };
 
 var env1 = {

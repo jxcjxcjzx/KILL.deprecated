@@ -1,3 +1,4 @@
+
 function interpret(form, env, ctx){
     if(form instanceof Array && form.length){
         switch(form[0]){
@@ -40,8 +41,11 @@ function interpret(form, env, ctx){
             case 'set!': {
                 var item = form[1];
                 var val = form[2]
-                env[item] = interpret(val, env, ctx);
-                return ctx(env[item]);
+                var result = interpret(val, env, ctx);
+                if(!env.hasOwnProperty(item)){
+                    return env.__proto__[item] = result;
+                }
+                return env[item] = result;
             };
             case 'begin': {
                 var value;
@@ -54,7 +58,7 @@ function interpret(form, env, ctx){
             };
         }
     } else if(typeof form === 'string') {
-        return ctx(env[form])
+        return ctx(env[form]);
     } else {
         return ctx(form)
     }
@@ -81,7 +85,7 @@ function id(x){ return x }
 
 var env0 = {
     trace: function(ctx){
-        return function(x) { return ctx(console.log(x)) }},
+        return function(x) { console.log(x);return ctx(x) }},
     // begin: function(ctx){
     //     return function(x$) { console.log(arguments);return ctx(arguments[arguments.length - 1]) }}
 };

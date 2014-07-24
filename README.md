@@ -1,6 +1,9 @@
 KILL -- the lambda evaluator
 ====
 
+<font color="red">***online***</font>
+https://github.com/kenpusney/KILL#syntax
+
 [TOC]
 
 ## Intro

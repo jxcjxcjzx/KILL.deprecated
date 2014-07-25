@@ -130,3 +130,9 @@ todo
   + Module System
   + Compiler
   + Documents. 
+
+## References
+
+  + 王垠：怎样写一个解释器 http://www.yinwang.org/blog-cn/2012/08/01/interpreter/
+  + Belleve Invis：预告：从解释器到抽象解释 http://typeof.net/m/trailer-from-a-interpreter-to-abstract-interpretation.html
+  

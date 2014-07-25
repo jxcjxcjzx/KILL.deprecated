@@ -26,7 +26,7 @@ if =
   {return [_if, cond, then, _else];}
  
 begin = 
-  t_begin es:(blank* newline? blank* "(" e:exp ")" {return e})+ blank* newline?  blank* delim
+  t_begin es:(blank* newline? blank* "(" e:exp ")" {return e})+ blank* delim
   { return ["begin"].concat(es);}
  
 fexp = 
@@ -50,7 +50,7 @@ binding =
  
 lambda = 
   ps:param? blank* (op_arrow blank* newline?) blank* exp:exp sep?
-  {return ["lambda", ps?[ps]:[], exp];} / 
+  {return ["lambda", ps?[ps]:[], exp];} /
   p:param blank+ exp:exp sep? {return ["lambda",[p],exp]} /
   p:param blank* l:lambda {return ["lambda",[p], l]}
 
@@ -72,7 +72,12 @@ digits = ds:[0-9]+ {return parseInt(ds.join(""),10);}
 quote = "(" e:exp es:exp* ")" 
   {return es.length? [e].concat(es): [e];}
 
-literal = digits / bools / unit
+literal = digits / bools / unit / list
+
+list = "[" l:list_item "]" {return ["list",l];}
+
+list_item = exp:exp blank* l:(sep l:list_item {return l;})? 
+  {return l?[exp].concat(l):[exp]}/ 
 
 unit = "(" blank* ")" {return undefined;}
  
@@ -100,6 +105,3 @@ blank = [ \t]
 delim = ";" / "\n"
  
 sep = blank* "," newline? blank*
- 
-qop = "+" / "-" / "*" / "/" /
-  "`" identifier "`"

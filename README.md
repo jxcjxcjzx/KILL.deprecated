@@ -1,8 +1,7 @@
 KILL -- the lambda evaluator
 ====
 
-<font color="red">***online***</font>
-https://github.com/kenpusney/KILL#syntax
+<font color="red">***online***</font> http://kenpusney.github.io/KILL/
 
 [TOC]
 

@@ -12,15 +12,10 @@
     <p>Press `F12` or open browser console to see <strong>trace</strong>. <a href="https://github.com/kenpusney/KILL#syntax">syntax reference</a></p>
         <div class="clear"></div>
         <div id="left">
-<div id="editor">let fib := \i -> \m -> \n ->
-    if is_zero i then id m else fib (pred i) n (add m n)
+<div id="editor">let fib := \i \m \n ->
+        if is_zero i then id m else fib (sub i 1) n (add m n)
 
-trace (fib 101 1 1)
-
-let fact := \i -> \f ->
-    if is_zero i then id f else fact (pred i) (mul i f)
-
-trace (fact 20 1)
+map (\x trace (fib x 0 1)) (range 1 20)
 </div>
         <button onclick="dump()">DUMP</button>
         <button onclick="run(reval())">EVAL</button>

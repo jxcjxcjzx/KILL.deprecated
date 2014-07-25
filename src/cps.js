@@ -260,6 +260,19 @@ var env2 = {
                 }
             })
         }
+    },
+    range: function (ctx) {
+        return function (begin) {
+            return ctx(function (ctx) {
+                return function (end) {
+                    var lst = [];
+                    for(var i = begin; i < end; i++){
+                        lst.push(i);
+                    }
+                    return ctx(new List(lst));
+                }
+            })
+        }
     }
 };
 

@@ -30,7 +30,7 @@ begin =
   { return ["begin"].concat(es);}
  
 fexp = 
-  l:aexp blank* rs:(blank* f:aexp {return f})* 
+  l:aexp blank* rs:(blank* f:aexp {return f.length&&f[0]=="list"?[f]:f;})* 
   { return rs.length? rs.reduce(function(l,r){return [l].concat(r);},l) : [l];}
  
 aexp = 

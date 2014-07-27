@@ -51,7 +51,7 @@ function interpret(form, env, ctx){
                 });
             }
             case 'list': {
-                return interpretL(form[1], env, id);
+                return interpretL(form[1], env, ctx);
             }
             // case 'begin': {
             //     var value;

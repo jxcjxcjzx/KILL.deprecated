@@ -109,11 +109,47 @@ set!x id 2
 trace x
 ```
 
+### list & list processing
+List is wrapped by `[]`, within it is a comma separated expression list.
+```
+let a := id ['1,'2,'3];
+
+map trace a
+```
+
+Basic list operator:
+`first` `rest` `length` `map` `reduce` ...(see `src/cps.js` for more information)
+
+
 ## Advanced Concepts
 
 ### Closures
 
-todo
+A closure is a code block with its evaluation context.
+```haskell
+let pair :=\x \y \f f x y
+
+let fst := \x \y id x
+let snd := \x \y id y
+
+let p := pair 1 2
+
+trace (p fst)
+trace (p snd)
+```
+while `pair 1 2` will returns a function that takes a function which takes pairs two value, the value `p` is treated as a function(block) with its two value(context).
+
+Also, a closure could ref it's up-level value(which is also called as `upval`) in it's evaluation context:
+```haskell
+let gen := \x -> -> set!x succ x
+
+let b := gen 0
+
+trace (b)
+trace (b)
+```
+
+For more information, see [Closure](http://en.wikipedia.org/wiki/Closure_(computer_programming))
 
 ### Continuations
 
@@ -125,7 +161,7 @@ todo
 
 ## TODOs
 
-  + List & Tuple support
+  + Full List & Tuple support
   + Types (Annotation, Checking, Inference)
   + Module System
   + Compiler

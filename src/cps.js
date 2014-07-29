@@ -3,6 +3,25 @@ var List = function (lst) {
     this.list = lst;
 };
 
+var Tuple = function () {
+    var elements;
+    if(arguments.length == 1 && arguments[0] instanceof Array){
+        elements = arguments[0];
+    }else{
+        elements = arguments;
+    }
+    var size = elements.length;
+    this.size = function () {
+        return size;
+    };
+    this.get = function (i) {
+        if (i < size && i >= 0){
+            return elements[i];
+        }
+    };
+    return this;
+};
+
 function interpret(form, env, ctx){
     if(form instanceof Array && form.length){
         switch(form[0]){
@@ -51,7 +70,10 @@ function interpret(form, env, ctx){
                 });
             }
             case 'list': {
-                return interpretL(form[1], env, ctx);
+                return interpretL(form[1], env, ctx, List);
+            }
+            case 'tuple': {
+                return interpretL(form[1], env, ctx, Tuple);
             }
             // case 'begin': {
             //     var value;
@@ -88,12 +110,12 @@ function interpret$(form, env, ctx){
     })
 }
 
-function interpretL(items, env, ctx){
+function interpretL(items, env, ctx, ctor){
     var _list = [];
     for(var i = 0; i < items.length; i++){
         _list.push(interpret(items[i],env,id));
     }
-    return ctx(new List(_list));
+    return ctx(new ctor(_list));
 }
 
 function id(x){ return x }
@@ -322,8 +344,59 @@ var env3 = {
     }
 };
 
+/** Tuple utils */
+
+var env4 = {
+    "T": function (ctx) {
+        return function (lst) {
+            if(lst instanceof List){
+                return ctx(new Tuple(lst.list));
+            }
+            return ctx(new Tuple(lst));
+        }
+    },
+    "fst": function (ctx) {
+        return function (tup) {
+            if(tup instanceof Tuple && tup.size()){
+                return ctx(tup.get(0));
+            }
+            return ctx(null);
+        }
+    },
+    "snd": function (ctx) {
+        return function (tup) {
+            if(tup instanceof Tuple && tup.size() > 1){
+                return ctx(tup.get(1));
+            }
+            return ctx(null);
+        }
+    },
+    "index": function (ctx) {
+        return function (index) {
+            return ctx(function (ctx) {
+                return function (tup) {
+                    if(tup instanceof Tuple && index < tup.size()){
+                        return ctx(tup.get(index));
+                    }
+                }
+            });
+        };
+    },
+    "get": function (ctx) {
+        return function (tup) {
+            return ctx(function (ctx) {
+                return function (index) {
+                    if(tup instanceof Tuple && index < tup.size()){
+                        return ctx(tup.get(index));
+                    }
+                }
+            });
+        };
+    }
+};
+
 function run(sequences, env, ctx){
-    env = env || _.extend(env0,env1,env2,env3);
+    env = env || _.extend(env0,env1,env2,env3,env4);
     ctx = ctx || id;
     var e = Object.create(env);
     for(var i = 0; i < sequences.length; i++){

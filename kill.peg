@@ -52,7 +52,10 @@ lambda =
   ps:param? blank* (op_arrow blank* newline?) blank* exp:exp sep?
   {return ["lambda", ps?[ps]:[], exp];} /
   p:param blank+ exp:exp sep? {return ["lambda",[p],exp]} /
-  p:param blank* l:lambda {return ["lambda",[p], l]}
+  p:param blank* l:lambda {return ["lambda",[p], l]}  / 
+  uc_lambda
+
+uc_lambda = "\\(" id:identifier blank* ids:(sep? blank* id:identifier {return id;})* ")" blank* exp:exp {return ["uc_lambda", [id].concat(ids),exp]}
 
 set = set:t_set blank* id:identifier blank+ exp:exp 
   {return [set, id, exp];}

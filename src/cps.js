@@ -1,4 +1,3 @@
-
 var List = function (lst) {
     this.list = lst;
 };
@@ -21,6 +20,15 @@ var Tuple = function () {
     };
     return this;
 };
+
+var ArgumentError = function (message, expected, found) {
+    this.__proto__ = Error;
+    this.message = message;
+    this.expected = expected;
+    this.found = found;
+    this.name = "ArgumentError";
+};
+
 
 function interpret(form, env, ctx){
     if(form instanceof Array && form.length){
@@ -74,6 +82,22 @@ function interpret(form, env, ctx){
             }
             case 'tuple': {
                 return interpretL(form[1], env, ctx, Tuple);
+            }
+            case 'uc_lambda': {
+                var uc_params = form[1];
+                var uc_body = form[2];
+                return ctx(function(ctx){ return function(tup) {
+                    if(!(tup instanceof Tuple))
+                        throw new ArgumentError("Argument Type Error","Tuple", tup);
+                    if(tup.size() != uc_params.length)
+                        throw new ArgumentError("Argument mismatch:", uc_params.length, tup.size());
+                    var e = Object.create(env);
+                    for(var j = 0; j < tup.size(); j++){
+                        e[uc_params[j]] = tup.get(j);
+                    }
+
+                    return interpret(uc_body, e, ctx)
+                }})
             }
             // case 'begin': {
             //     var value;

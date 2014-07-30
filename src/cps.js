@@ -1,4 +1,4 @@
-var List = function (lst) {
+ var List = function (lst) {
     this.list = lst;
 };
 
@@ -29,6 +29,19 @@ var ArgumentError = function (message, expected, found) {
     this.name = "ArgumentError";
 };
 
+
+function comprehension(values, fn, lst) {
+    if(values.length){
+        for(var i = 0; i < values[0].list.length; i++){
+            if(values.length == 1){
+                lst.push(fn(id)(values[0].list[i]));
+            }else{
+                comprehension(values.slice(1), fn(id)(values[0].list[i]),lst);
+            }
+        }
+    }
+    return new List(lst);
+}
 
 function interpret(form, env, ctx){
     if(form instanceof Array && form.length){
@@ -98,6 +111,11 @@ function interpret(form, env, ctx){
 
                     return interpret(uc_body, e, ctx)
                 }})
+            }
+            case 'list_comp': {
+                var comp_fn = form[2];
+                var values = interpretL(form[1].map(function (x) { return x[1]; }), env, id, List);
+                return ctx(comprehension(values.list, interpret(comp_fn, env, id),[]));
             }
             // case 'begin': {
             //     var value;

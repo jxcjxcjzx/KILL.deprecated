@@ -74,7 +74,6 @@ function interpret(form, env, ctx){
             case 'quote': {
                 return ctx(form[1])
             }
-            //TODO:
             case 'let': {
                 var items = form[1];
                 for(var i = 0; i < items.length; i++)
@@ -183,7 +182,7 @@ var env1 = {
     succ: function(ctx){
         return function(x) { return ctx(x+1); };
     },
-    is_zero: function(ctx){
+    "zero?": function(ctx){
         return function(x) { return ctx(x == 0); };
     },
     pred: function(ctx){

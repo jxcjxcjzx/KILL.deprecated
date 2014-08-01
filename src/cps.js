@@ -160,7 +160,7 @@ function interpretL(items, env, ctx, ctor){
 }
 
 function id(x){ return x }
-
+function trace(x) {console.log(x); return x;}
 
 /** base env  */
 var env0 = {

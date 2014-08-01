@@ -40,4 +40,21 @@ describe("Compiler", function () {
                 ["d", [["lambda", ["b"], "b"], "c"]]
             ]]))).toBe("var a=1, b=s(c), c=(function(a){ return id(a);}), d=(function(b){ return b;})(c)");
     })
+    it("compile who program", function () {
+        expect(kill.compiler.compile(
+            kill.parser.parse(
+                    "let x:= 1\n" +
+                    "let a:= 2\n" +
+                    "let s:= \\x -> 1\n" +
+                    "let v := s 2\n" +
+                    "trace v"
+            )
+        )).toBe(
+                "var x=1;\n" +
+                "var a=2;\n" +
+                "var s=(function(x){ return 1;});\n"+
+                "var v=s(2);\n"+
+                "trace(v)"
+        )
+    })
 });

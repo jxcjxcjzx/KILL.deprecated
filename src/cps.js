@@ -161,6 +161,14 @@ function interpretL(items, env, ctx, ctor){
 
 function id(x){ return x }
 function trace(x) {console.log(x); return x;}
+function _$$comprehension(lst, fn, arr){
+    arr = arr || [];
+    lst[0].map(function (x) {
+        if(lst.length == 1) return arr.push(fn(x));
+        return compre(lst.slice(1),fn(x),arr);
+    });
+    return arr;
+}
 
 /** base env  */
 var env0 = {
@@ -182,7 +190,7 @@ var env1 = {
     succ: function(ctx){
         return function(x) { return ctx(x+1); };
     },
-    "zero?": function(ctx){
+    "zero": function(ctx){
         return function(x) { return ctx(x == 0); };
     },
     pred: function(ctx){
@@ -341,17 +349,17 @@ var env2 = {
 
 /** Common predicates */
 var env3 = {
-    "odd?": function (ctx) {
+    "odd": function (ctx) {
         return function (num) {
             return ctx(num%2 == 1);
         };
     },
-    "even?": function (ctx) {
+    "even": function (ctx) {
         return function (num) {
             return ctx(num%2 == 0);
         }
     },
-    "any?": function (ctx) {
+    "any": function (ctx) {
         return function (pred) {
             return ctx(function (ctx) {
                 return function (lst) {
@@ -367,7 +375,7 @@ var env3 = {
             })
         }
     },
-    "all?": function (ctx) {
+    "all": function (ctx) {
         return function (pred) {
             return ctx(function (ctx) {
                 return function (lst) {

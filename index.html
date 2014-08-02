@@ -1,6 +1,8 @@
 <html>
     <head>
         <script type="text/javascript" src="src/underscore.js"></script>
+        <script type="text/javascript" src="src/beautify.js"></script>
+
         <script type="text/javascript" src="src/kill.parser.js"></script>
         <script type="text/javascript" src="src/jsDump.js"></script>
         <script type="text/javascript" src="src/cps.js"></script>
@@ -14,14 +16,16 @@
         <div class="clear"></div>
         <div id="left">
 <div id="editor">let fib := \i \m \n ->
-        if zero? i then id m else fib (sub i 1) n (add m n)
+        if zero i then id m else fib (sub i 1) n (add m n)
 
-id [trace (fib a 0 1) | a in range 1 50 if odd? a]
+id [trace (fib a 0 1) | a in range 1 50 if odd a]
 </div>
         <button onclick="dump()">DUMP</button>
+        <button onclick="dumpSource()">COMPILE(BETA)</button>
         <button onclick="run(reval())">EVAL</button>
         </div>
         <div id="ast"></div>
+        <button onclick="">'eval(compile(source()))'</button>
         <div id="env"></div>
         <div class="clear"></div>
         <script type="text/javascript">
@@ -32,9 +36,31 @@ id [trace (fib a 0 1) | a in range 1 50 if odd? a]
                     console.log(e);
                 }
             }
+            function dumpSource() {
+                try{
+                    ace.edit("ast").setValue(compile(source()));
+                }catch(e){
+                    console.log(e);
+                }
+            }
             function reval(){
                 try{
                     return kill.parser.parse(ace.edit("editor").getValue().replace(/\r\n?/g,"\n"));    
+                }catch(e){
+                    console.log(e);
+                }
+            }
+            function compile(source) {
+                return js_beautify(
+                        kill.compiler.compile(
+                                kill.parser.parse(
+                                        source
+                                )
+                        ));
+            }
+            function source() {
+                try{
+                    return ace.edit("editor").getValue().replace(/\r\n?/g,"\n");
                 }catch(e){
                     console.log(e);
                 }

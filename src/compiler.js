@@ -81,6 +81,7 @@ kill.compiler = (function (kill) {
                                 transform(consequence,id),
                                 transform(alternative,id))
                     );
+                /// TODO:call_cc
 //                case "callcc":
 //                    break;
                 case "quote":

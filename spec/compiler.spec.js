@@ -39,7 +39,42 @@ describe("Compiler", function () {
                 ["c", ["lambda", ["a"], ["id", ["a"]]]],
                 ["d", [["lambda", ["b"], "b"], "c"]]
             ]]))).toBe("var a=1, b=s(c), c=(function(a){ return id(a);}), d=(function(b){ return b;})(c)");
-    })
+    });
+
+    it("compiles set!expression", function () {
+        expect(kill.compiler.transform(["set!", "x", ["a", ["b", "c"]]])).toBe("x = a(b(c))");
+        expect(kill.compiler.transform(["set!", "x", ["lambda",["b"], ["b", "c"]]])).toBe("x = (function(b){ return b(c);})");
+    });
+
+    it("compiles quote form", function () {
+        expect(kill.compiler.transform(["quote", 1])).toBe(1);
+        expect(kill.compiler.transform(["quote", "Hehe"])).toBe("Hehe");
+    });
+
+    it("compiles list & tuple form", function () {
+        expect(kill.compiler.dump(
+            kill.compiler.transform(
+                ["list",[
+                    ["a","b"],
+                    ["lambda",["a"],["a","b"]],
+                    ["b"]]])))
+            .toBe("[a(b), (function(a){ return a(b);}), b]");
+        expect(kill.compiler.dump(
+            kill.compiler.transform(
+                ["tuple",["list",[
+                    ["a","b"],
+                    ["lambda",["a"],["a","b"]],
+                    ["b"]]]])))
+            .toBe("tuple(a(b), (function(a){ return a(b);}), b)");
+    });
+    it("compiles if form", function () {
+        expect(kill.compiler.dump(
+            kill.compiler.transform(
+                ["if", ["a", "b"], ["a", "c"], ["b", "c"]]
+            )
+        )).toBe("if ( a(b) ) return a(c);\n"+
+        "return b(c);");
+    });
     it("compile who program", function () {
         expect(kill.compiler.compile(
             kill.parser.parse(

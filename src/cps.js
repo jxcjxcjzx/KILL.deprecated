@@ -151,6 +151,13 @@ function interpret$(form, env, ctx){
     })
 }
 
+function id (x) {
+    return x;
+}
+function trace (x){
+    console.log(x);
+    return x;
+}
 function interpretL(items, env, ctx, ctor){
     var _list = [];
     for(var i = 0; i < items.length; i++){

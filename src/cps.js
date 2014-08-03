@@ -159,17 +159,6 @@ function interpretL(items, env, ctx, ctor){
     return ctx(new ctor(_list));
 }
 
-function id(x){ return x }
-function trace(x) {console.log(x); return x;}
-function _$$comprehension(lst, fn, arr){
-    arr = arr || [];
-    lst[0].map(function (x) {
-        if(lst.length == 1) return arr.push(fn(x));
-        return compre(lst.slice(1),fn(x),arr);
-    });
-    return arr;
-}
-
 /** base env  */
 var env0 = {
     trace: function(ctx){

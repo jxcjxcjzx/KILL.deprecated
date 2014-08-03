@@ -7,6 +7,7 @@
         <script type="text/javascript" src="src/jsDump.js"></script>
         <script type="text/javascript" src="src/cps.js"></script>
         <script type="text/javascript" src="src/compiler.js"></script>
+        <script type="text/javascript" src="src/env.js"></script>
         <script type="text/javascript" src="src/ace-builds-1.1.5-min-noconflict/ace.js"></script>
         <link rel="stylesheet" href="style.css" />
     </head>
@@ -25,7 +26,7 @@ id [trace (fib a 0 1) | a in range 1 50 if odd a]
         <button onclick="run(reval())">EVAL</button>
         </div>
         <div id="ast"></div>
-        <button onclick="">'eval(compile(source()))'</button>
+        <button onclick="kill.env.evil(compile(source()))">RunJS</button>
         <div id="env"></div>
         <div class="clear"></div>
         <script type="text/javascript">

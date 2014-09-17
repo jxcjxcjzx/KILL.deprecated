@@ -15,11 +15,11 @@ kill.env = (function (kill) {
         arr = arr || [];
         lst[0].map(function (x) {
             if(lst.length == 1) return arr.push(fn(x));
-            return compre(lst.slice(1),fn(x),arr);
+            return _$$comprehension(lst.slice(1),fn(x),arr);
         });
         return arr;
     }
-    var evil = function (src) {
+    var evil = function () {
 
         var trace = function (x) {console.log(x); return x;};
 
@@ -91,8 +91,8 @@ kill.env = (function (kill) {
             T: T
         };
 
-        return eval(src);
-    };
+        return function(src){return eval(src);};
+    }();
 
     kill.env = {
         evil:evil,

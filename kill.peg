@@ -1,102 +1,4 @@
 start = stmts
- 
-stmts = 
-  stmt:stmt stmts:(delim stmt:stmt {return stmt})* delim?
-  {return [stmt].concat(stmts)}
- 
-stmt = blank* stmt:(decl / exp) comment? {return stmt;} / comment /
- 
-comment = blank* t_comment [^#\n]+ {return [];}
- 
-decl = let
- 
-exp = 
-  if / begin / set / squote / infixexp
-
-infixexp = 
-  l:lexp
-    {return l}
-
-lexp = 
-  lambda /
-  fexp
- 
-if = 
-  _if:t_if blank* cond:fexp blank* t_then blank* then:fexp blank* t_else blank* _else:fexp 
-  {return [_if, cond, then, _else];}
- 
-begin = 
-  t_begin es:(blank* newline? blank* "(" e:exp ")" {return e})+ blank* delim
-  { return ["begin"].concat(es);}
- 
-fexp = 
-  l:aexp blank* rs:(blank* f:aexp {return f.length&&["list","list_comp"].indexOf(f[0]) > -1?[f]:f;})* 
-  { return rs.length? rs.reduce(function(l,r){return [l].concat(r);},l) : [l];}
- 
-aexp = 
-  literal /
-  var /
-  quote
- 
-let = let:t_let blank+ bs:bindings {return [let, bs];}
- 
-bindings = 
-  b:binding bs:(sep blank* b:binding {return b;})*
-  {return [b].concat(bs);}
- 
-binding = 
-  name:identifier blank* op_assign blank* exp:exp
-  {return [name, exp];}
- 
-lambda = 
-  ps:param? blank* (op_arrow blank* newline?) blank* exp:exp sep?
-  {return ["lambda", ps?[ps]:[], exp];} /
-  p:param blank+ exp:exp sep? {return ["lambda",[p],exp]} /
-  p:param blank* l:lambda {return ["lambda",[p], l]}  / 
-  uc_lambda
-
-uc_lambda = "\\(" id:identifier blank* ids:(sep? blank* id:identifier {return id;})* ")" blank* exp:exp
-  {return ["uc_lambda", [id].concat(ids),exp]}
-
-set = set:t_set blank* id:identifier blank+ exp:exp 
-  {return [set, id, exp];}
-
-newline = "\n"
- 
-param = "\\" id:identifier {return id;}
- 
-identifier = 
-  id:[_a-zA-Z?!+\-*/%\^\$\&]+ &{return ["if","let","begin", "then", "else", "set!", "in", "--"].indexOf(id.join("")) == -1 }
-  { return id.join("");}
- 
-var = identifier
- 
-digits = ds:[0-9]+ {return parseInt(ds.join(""),10);}
-
-quote = "(" e:exp es:exp* ")" 
-  {return es.length? [e].concat(es): [e];}
-
-literal = digits / bools / unit / list
-
-list = "[" l:list_item "]" {return ["list",l];} / comprehension
-
-comprehension = "[" blank* exp:exp blank* newline? blank*"|" blank* bind:in_bindings blank* "]"
-  {return ["list_comp",bind,bind.slice(0).reverse().reduce(function(a,b){return ["lambda",[b[0]], a]},exp)]}
-
-in_binding =  id:identifier blank* "in" blank* exp:exp cond:(blank* t_if blank* exp:exp blank* {return exp;})?
-  {return cond?[id,[["filter",["lambda",[id], cond]], exp]]:[id, exp]}
-
-in_bindings = i:in_binding ins:(sep i:in_binding {return i})*
-  {return [i].concat(ins);}
-
-list_item = exp:exp blank* l:(sep l:list_item {return l;})? 
-  {return l?[exp].concat(l):[exp]}/ 
-
-unit = "(" blank* ")" {return undefined;}
- 
-bools = bool:("true" / "false") {return bool == "true";}
-
-squote = t_qt exp:exp {return ["quote"].concat(exp);}
 
 t_qt = "'"
 
@@ -108,14 +10,171 @@ t_begin = "begin"
 t_end = "end"
 t_set = "set!"
 t_in = "in"
+t_for = "for"
 t_comment = "--"
- 
+
+keywords = 
+  t_let /
+  t_if /
+  t_then /
+  t_else /
+  t_begin /
+  t_end /
+  t_set /
+  t_in /
+  t_for
+
 op_assign = ":="
- 
-op_arrow = "->"
- 
+op_arrow  = "->"
+
+bra = "("
+ket = ")"
+
+squ = "["
+are = "]"
+
+bar = "|"
+
 blank = [ \t]
- 
-delim = ";" / "\n"
- 
+newline = "\n"
+bnl = blank* newline? blank*
+delim = ";;" / "\n"
+semi = ";"
 sep = blank* "," newline? blank*
+
+digits = ds:[0-9]+ {return parseInt(ds.join(""),10);}
+
+identifier = 
+  id:[_a-zA-Z?!+\-*/%\^\$\&]+ &{ 
+      return ["if", "let", "begin", 
+              "then", "else", "set!", 
+              "in", "--",  "end",
+              "true", "false", "for",
+          ].indexOf(id.join("")) == -1
+    }
+  { return id.join(""); }
+
+literal = digits / bools / unit / list
+
+bools = bool:("true" / "false") {return bool == "true";}
+
+unit = bra blank* ket {return undefined;}
+
+stmts = 
+  stmt:stmt stmts:stmt_r?
+  {return stmt? (stmts ? [stmt].concat(stmts):[stmt])
+            : (stmts ? stmts : []);}
+
+stmt_r = delim? bnl? stmts:stmts
+  {return stmts;}
+
+stmt = blank* stmt:(decl / exp) comment? {return stmt;} / comment
+
+comment = blank* t_comment [^#\n]+ {return undefined;}
+  / newline {return undefined;}
+
+decl = let
+ 
+exp = 
+  if / 
+  begin / 
+  set / 
+  squote / 
+  lexp
+
+lexp = 
+  lambda /
+  fexp
+
+if =
+  cond:cond bnl then:then bnl _else:else bnl
+  {return ["if", cond, then, _else]}
+
+cond = 
+  t_if blank* cond:exp
+  {return cond}
+
+then =
+  t_then blank* then:exp
+  {return then;}
+
+else =
+  t_else blank* _else:exp
+  {return _else;}
+
+begin = 
+  t_begin bnl es:beg_exps t_end
+  { return ["begin"].concat(es);}
+
+beg_exps = 
+  exp:exp blank* semi bnl exps:beg_exps?
+  {return exps?[exp].concat(exps):[exp];}
+
+fexp = 
+  l:aexp blank* rs:(blank* f:aexp {return f.length&&["list","list_comp"].indexOf(f[0]) > -1?[f]:f;})* 
+  { return rs.length? rs.reduce(function(l,r){return [l].concat(r);},l) : [l];}
+ 
+aexp = 
+  literal /
+  var /
+  quote
+ 
+let = let:t_let blank+ bs:bindings {return [let, bs];}
+ 
+binding = 
+  name:identifier blank* op_assign bnl exp:exp
+  {return [name, exp];}
+
+bindings = 
+  b:binding bs:binding_r?
+  {return bs?[b].concat(bs):[b];}
+
+binding_r = sep bnl bindings:bindings
+  {return bindings;}
+ 
+lambda = 
+  ps:param? blank* op_arrow  bnl exp:exp
+  {return ["lambda", ps?[ps]:[], exp];} /
+  p:param blank+ exp:exp sep? {return ["lambda",[p],exp]} /
+  p:param blank* l:lambda {return ["lambda",[p], l]}  / 
+  uc_lambda
+
+uc_lambda = "\\(" id:identifier blank* ids:(sep? blank* id:identifier {return id;})* ")" blank* exp:exp
+  {return ["uc_lambda", [id].concat(ids),exp]}
+
+set = set:t_set blank* id:identifier blank+ exp:exp 
+  {return [set, id, exp];}
+
+param = "\\" id:identifier {return id;}
+ 
+var = identifier
+
+quote = bra e:exp es:exp* ket
+  {return es.length? [e].concat(es): [e];}
+
+squote = t_qt exp:exp {return ["quote"].concat(exp);}
+
+list = squ l:list_item are {return ["list",l];} / comprehension
+
+list_item = exp:exp blank* l:(sep l:list_item {return l;})? 
+  {return l?[exp].concat(l):[exp]}/ 
+
+comprehension = squ blank* exp:exp blank* newline? blank* bar blank* bind:in_bindings blank* are
+  {return ["list_comp",
+            bind,
+            bind.slice(0).reverse().reduce(function(a,b){
+              return ["lambda",[b[0]], a];
+            },exp)];}
+
+in_binding =  id:identifier blank* exp:in_exp blank* cond:cond? bnl
+  {return cond?[id,[["filter",["lambda",[id], cond]], exp]]:[id, exp]}
+
+in_exp = 
+  t_in blank* exp:exp
+  {return exp;}
+
+in_bindings = i:in_binding ins:in_binding_r?
+  {return ins ? [i].concat(ins) : [i];}
+
+in_binding_r = "," bnl ins:in_bindings
+  {return ins}

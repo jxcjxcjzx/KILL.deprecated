@@ -37,8 +37,8 @@ kill.compiler = (function (kill) {
         this.alternative = alternative;
     };
     
-    var Statements = function () {
-        var stmts = [];
+    var Statements = function (stmts) {
+        stmts = stmts || [];
         this.append = function(stmt){
             stmts.push(stmt);
             return this;
@@ -71,6 +71,13 @@ kill.compiler = (function (kill) {
                         lambda.body = bdy;
                         return ctx(lambda);
                     });
+                case "begin":
+                    var begins = form.slice(1);
+                    var stmts = [];
+                    for(i = 0; i < begins.length; i++){
+                        stmts.push(dump(transform(begins[i],id),id));
+                    }
+                    return ctx(new Statements(stmts));
                 case "if":
                     var cond = form[1];
                     var consequence = form[2];
@@ -89,7 +96,7 @@ kill.compiler = (function (kill) {
                 case "set!":
                     var atom = form[1];
                     var expr = form[2];
-                    return ctx([atom, "=", dump(transform(expr),id)].join(" "));
+                    return ctx([atom, "=", dump(transform(expr,id),id)].join(" "));
                 case "list":
                     var lst = [];
                     for(i = 0; i < form[1].length; i++){
@@ -146,16 +153,21 @@ kill.compiler = (function (kill) {
             for(var i = 0; i < form.count(); i++){
                 if((form.get(i) instanceof Array) && form.get(i).length)
                     continue;
-                stmts.push(dump(form.get(i), id));
+                if(i == form.count() - 1){
+                    stmts.push("return "+dump(form.get(i), id));
+                }else{
+                    stmts.push(dump(form.get(i), id));
+                }
             }
-            return ctx(stmts.join(";\n"));
+            return ctx("(function(){"+stmts.join(";\n")+"}());");
         }
         if(form instanceof Lambda)
             return ctx("(function("+ dump(form.argv,id) +"){ return " + dump(form.body,id) + ";})");
         else if(form instanceof If){
             return ctx("( "+dump(form.cond,id)+" ) ? " +
-                "( "+dump(form.consequence,id)+" ) : " +
-                "( "+dump(form.alternative,id)+" )");
+                    "( "+dump(form.consequence,id)+" )" +
+                ":" +
+                     "( "+dump(form.alternative,id)+" )");
         }
         else if(form instanceof FCall){
             return dump(form.args, function (args) {

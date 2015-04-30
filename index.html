@@ -1,20 +1,26 @@
 <html>
+    
     <head>
         <script type="text/javascript" src="src/vendor/underscore.js"></script>
         <script type="text/javascript" src="src/vendor/beautify.js"></script>
         <script type="text/javascript" src="src/vendor/jsDump.js"></script>
         <script type="text/javascript" src="src/vendor/ace-builds-1.1.5-min-noconflict/ace.js"></script>
-        
+   
         <script type="text/javascript" src="src/kill.base.js"></script>
         <script type="text/javascript" src="src/kill.parser.js"></script>
         <script type="text/javascript" src="src/internal.js"></script>
         <script type="text/javascript" src="src/compiler.js"></script>
         <script type="text/javascript" src="src/env.js"></script>
+   
         <link rel="stylesheet" href="style.css" />
     </head>
+    
     <body>
-    <h1>KILL workspace // Kimmy's Interpreter for Lambda the Limited</h1>
-    <p>Press `F12` or open browser console to see <strong>trace</strong>. <a href="https://github.com/kenpusney/KILL#syntax">syntax reference</a></p>
+        <h1>KILL workspace // Kimmy's Interpreter for Lambda the Limited</h1>
+        <p>Press `F12` or open browser console to see
+            <strong>trace</strong>.
+            <a href="https://github.com/kenpusney/KILL#syntax">syntax reference</a>
+        </p>
         <div class="clear"></div>
         <div id="left">
 <div id="editor">
@@ -31,8 +37,8 @@ let x :=
 
 [trace (fib a 0 1) | a in range x y if odd a]
 </div>
-        <button onclick="dump()">DUMP</button>
-        <button onclick="dumpSource()">COMPILE(BETA)</button>
+            <button onclick="dump()">DUMP</button>
+            <button onclick="dumpSource()">COMPILE(BETA)</button>
         </div>
         <div id="ast"></div>
         <button onclick="kill.env.evil(compile(source()))">RunJS</button>
@@ -80,4 +86,5 @@ let x :=
             ast.setReadOnly(true);
         </script>
     </body>
+
 </html>

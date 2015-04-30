@@ -4,9 +4,9 @@ var List = function (lst) {
 
 var Tuple = function () {
     var elements;
-    if(arguments.length == 1 && arguments[0] instanceof Array){
+    if (arguments.length == 1 && arguments[0] instanceof Array) {
         elements = arguments[0];
-    }else{
+    } else {
         elements = arguments;
     }
     var size = elements.length;
@@ -14,7 +14,7 @@ var Tuple = function () {
         return size;
     };
     this.get = function (i) {
-        if (i < size && i >= 0){
+        if (i < size && i >= 0) {
             return elements[i];
         }
     };
@@ -25,7 +25,7 @@ function id(x) {
     return x;
 }
 
-function trace(x){
+function trace(x) {
     console.log(x);
     return x;
 }

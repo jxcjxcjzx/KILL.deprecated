@@ -1,6 +1,6 @@
 <html>
     <head>
-        <script type="text/javascript" src="src/underscore.js"></script>
+        <script type="text/javascript" src="src/lodash.js"></script>
         <script type="text/javascript" src="src/beautify.js"></script>
 
         <script type="text/javascript" src="src/kill.parser.js"></script>
@@ -45,7 +45,7 @@ id [trace (fib a 0 1) | a in range 1 50 if odd a]
             }
             function reval(){
                 try{
-                    return kill.parser.parse(ace.edit("editor").getValue().replace(/\r\n?/g,"\n"));    
+                    return kill.parser.parse(ace.edit("editor").getValue().replace(/\r\n?/g,"\n"));
                 }catch(e){
                     console.log(e);
                 }
@@ -73,7 +73,7 @@ id [trace (fib a 0 1) | a in range 1 50 if odd a]
 
             editor.setTheme("ace/theme/monokai");
             editor.getSession().setMode("ace/mode/haskell");
-            
+
             ast.setTheme("ace/theme/chrome");
             ast.getSession().setMode("ast/mode/javascript");
             ast.setShowPrintMargin(false);

@@ -36,7 +36,7 @@ kill.compiler = (function (kill) {
         this.consequence = consequence;
         this.alternative = alternative;
     };
-    
+
     var Statements = function () {
         var stmts = [];
         this.append = function(stmt){

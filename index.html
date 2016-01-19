@@ -1,8 +1,8 @@
 <html>
 
     <head>
-        <script type="text/javascript" src="src/lodash.js"></script>
-        <script type="text/javascript" src="src/beautify.js"></script>
+        <script type="text/javascript" src="src/vendor/lodash.js"></script>
+        <script type="text/javascript" src="src/vendor/beautify.js"></script>
         <script type="text/javascript" src="src/vendor/jsDump.js"></script>
         <script type="text/javascript" src="src/vendor/ace-builds-1.1.5-min-noconflict/ace.js"></script>
 
@@ -14,7 +14,7 @@
 
         <link rel="stylesheet" href="style.css" />
     </head>
-    
+
     <body>
         <h1>KILL workspace // Kimmy's Interpreter for Lambda the Limited</h1>
         <p>Press `F12` or open browser console to see
@@ -37,20 +37,12 @@ let x :=
 
 [trace (fib a 0 1) | a in range x y if odd a]
 </div>
-<<<<<<< HEAD
-        <button onclick="dump()">DUMP</button>
-        <button onclick="dumpSource()">COMPILE(BETA)</button>
-        </div>
-        <div id="ast"></div>
-        <button onclick="run(compile(source()))">'eval(compile(source()))'</button>
-        <div id="env"></div>
-=======
+
             <button onclick="dump()">DUMP</button>
             <button onclick="dumpSource()">COMPILE(BETA)</button>
         </div>
         <div id="ast"></div>
         <button onclick="kill.env.evil(compile(source()))">RunJS</button>
->>>>>>> 238f073c92ef1760a5cbd66306bdfb07732a6da2
         <div class="clear"></div>
         <script type="text/javascript">
             function dump(){
@@ -67,16 +59,6 @@ let x :=
                     console.log(e);
                 }
             }
-<<<<<<< HEAD
-            function reval(){
-                try{
-                    return kill.parser.parse(ace.edit("editor").getValue().replace(/\r\n?/g,"\n"));
-                }catch(e){
-                    console.log(e);
-                }
-            }
-=======
->>>>>>> 238f073c92ef1760a5cbd66306bdfb07732a6da2
             function compile(source) {
                 return js_beautify(
                         kill.compiler.compile(
@@ -105,9 +87,4 @@ let x :=
             ast.setReadOnly(true);
         </script>
     </body>
-<<<<<<< HEAD
 </html>
-=======
-
-</html>
->>>>>>> 238f073c92ef1760a5cbd66306bdfb07732a6da2

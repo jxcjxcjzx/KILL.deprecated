@@ -51,89 +51,95 @@ kill.compiler = (function (kill) {
         }
     };
 
+    handlers = {
+      "let": function(form, ctx) {
+        var bindings=form[1];
+        var bindres=new Bindings([]);
+        for(var i=0; i < bindings.length; i++){
+            bindres.append(new Binding(bindings[i][0],
+                transform(bindings[i][1],id)));
+        }
+        return ctx(bindres)
+      },
+      "lambda": function(form, ctx) {
+        var param = form[1];
+        var body = form[2];
+        var lambda = new Lambda(param.length, param);
+        return transform(body, function (bdy) {
+            lambda.body = bdy;
+            return ctx(lambda);
+        });
+      },
+      "if": function(form, ctx) {
+        var cond = form[1];
+        var consequence = form[2];
+        var alternative = form[3];
+        return ctx(
+            new If(
+                transform(cond,id),
+                    transform(consequence,id),
+                    transform(alternative,id))
+        )
+      },
+      "quote": function(form, ctx) {
+        return ctx(form[1])
+      },
+      "set!": function(form, ctx) {
+        var atom = form[1];
+        var expr = form[2];
+        return ctx([atom, "=", dump(transform(expr),id)].join(" "));
+      },
+      "list": function (form, ctx) {
+            var lst = [];
+            for(i = 0; i < form[1].length; i++){
+                lst.push(transform(form[1][i],id));
+            }
+            return ctx(new List(lst));
+      },
+      "tuple": function (form, ctx) {
+        var tup = form[1][1];
+        var tuple = [];
+        for(i = 0; i < tup.length; i++){
+            tuple.push(transform(tup[i],id));
+        }
+        return ctx(new Tuple(tuple))
+      },
+      "list_comp": function(form, ctx) {
+        var list = form[1];
+        var comp = form[2];
+        return ctx("_$$comprehension("+dump(transform(new List(list.map(function (arg) {
+            return transform(arg[1],id);
+        })),id),id)+", "+dump(transform(comp,id),id)+")");
+      }
+    }
+
     var transform = function (form, ctx) {
         ctx = ctx || trace;
         if (form instanceof Array && form.length) {
-            switch (form[0]) {
-                case "let":
-                    var bindings=form[1];
-                    var bindres=new Bindings([]);
-                    for(var i=0; i < bindings.length; i++){
-                        bindres.append(new Binding(bindings[i][0],
-                            transform(bindings[i][1],id)));
-                    }
-                    return ctx(bindres);
-                case "lambda":
-                    var param = form[1];
-                    var body = form[2];
-                    var lambda = new Lambda(param.length, param);
-                    return transform(body, function (bdy) {
-                        lambda.body = bdy;
-                        return ctx(lambda);
-                    });
-                case "if":
-                    var cond = form[1];
-                    var consequence = form[2];
-                    var alternative = form[3];
-                    return ctx(
-                        new If(
-                            transform(cond,id),
-                                transform(consequence,id),
-                                transform(alternative,id))
-                    );
-                /// TODO:call_cc
-//                case "callcc":
-//                    break;
-                case "quote":
-                    return ctx(form[1]);
-                case "set!":
-                    var atom = form[1];
-                    var expr = form[2];
-                    return ctx([atom, "=", dump(transform(expr),id)].join(" "));
-                case "list":
-                    var lst = [];
-                    for(i = 0; i < form[1].length; i++){
-                        lst.push(transform(form[1][i],id));
-                    }
-                    return ctx(new List(lst));
-                case "tuple":
-                    var tup = form[1][1];
-                    var tuple = [];
-                    for(i = 0; i < tup.length; i++){
-                        tuple.push(transform(tup[i],id));
-                    }
-                    return ctx(new Tuple(tuple));
-                case "uc_lambda":
-                    break;
-                case "list_comp":
-                    var list = form[1];
-                    var comp = form[2];
-                    return ctx("_$$comprehension("+dump(transform(new List(list.map(function (arg) {
-                        return transform(arg[1],id);
-                    })),id),id)+", "+dump(transform(comp,id),id)+")");
-                default:
-                    return transform(form[0], function (fn) {
-                        if(form.slice(1).length){
-                            if(fn instanceof FCall){
-                                return ctx(new FCall(fn,transform(form.slice(1),id)));
-                            }else{
-                                return ctx(new FCall(fn,transform(form.slice(1),id)));
-                            }
-                        }
-                        return ctx(fn);
-                    })
-            }
+          if (handlers[form[0]]) {
+            return handlers[form[0]](form, ctx);
+          }
+          return transform(form[0], function (fn) {
+              if(form.slice(1).length){
+                  if(fn instanceof FCall){
+                      return ctx(new FCall(fn,transform(form.slice(1),id)));
+                  }else{
+                      return ctx(new FCall(fn,transform(form.slice(1),id)));
+                  }
+              }
+              return ctx(fn);
+          })
         }
         if(typeof(form) == "String"){
             /**
              * @TODO:
              * Syntax Translation:
-             *      ? => $q_
-             *      ! => $e_
+             *      ? => $q$
+             *      ! => $e$
              *      ...
              * */
-            form.replace(/\?/g,"$q_");
-            form.replace(/!/g,"$e_");
+            form.replace(/\?/g,"$q$");
+            form.replace(/!/g,"$e$");
             return ctx(form);
         }
         return ctx(form);

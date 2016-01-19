@@ -1,31 +1,48 @@
 <html>
-    <head>
-        <script type="text/javascript" src="src/lodash.js"></script>
-        <script type="text/javascript" src="src/beautify.js"></script>
 
+    <head>
+        <script type="text/javascript" src="src/vendor/lodash.js"></script>
+        <script type="text/javascript" src="src/vendor/beautify.js"></script>
+        <script type="text/javascript" src="src/vendor/jsDump.js"></script>
+        <script type="text/javascript" src="src/vendor/ace-builds-1.1.5-min-noconflict/ace.js"></script>
+
+        <script type="text/javascript" src="src/kill.base.js"></script>
         <script type="text/javascript" src="src/kill.parser.js"></script>
-        <script type="text/javascript" src="src/jsDump.js"></script>
-        <script type="text/javascript" src="src/cps.js"></script>
+        <script type="text/javascript" src="src/internal.js"></script>
         <script type="text/javascript" src="src/compiler.js"></script>
-        <script type="text/javascript" src="src/ace-builds-1.1.5-min-noconflict/ace.js"></script>
+        <script type="text/javascript" src="src/env.js"></script>
+
         <link rel="stylesheet" href="style.css" />
     </head>
+
     <body>
-    <h1>KILL workspace // Kimmy's Interpreter for Lambda the Limited</h1>
-    <p>Press `F12` or open browser console to see <strong>trace</strong>. <a href="https://github.com/kenpusney/KILL#syntax">syntax reference</a></p>
+        <h1>KILL workspace // Kimmy's Interpreter for Lambda the Limited</h1>
+        <p>Press `F12` or open browser console to see
+            <strong>trace</strong>.
+            <a href="https://github.com/kenpusney/KILL#syntax">syntax reference</a>
+        </p>
         <div class="clear"></div>
         <div id="left">
-<div id="editor">let fib := \i \m \n ->
-        if zero i then id m else fib (sub i 1) n (add m n)
+<div id="editor">
+let fib :=
+    \i \m \n ->
+        if zero i
+        then id m
+        else fib (sub i 1) n (add m n)
 
-id [trace (fib a 0 1) | a in range 1 50 if odd a]
+let x :=
+        1,
+    y :=
+        24
+
+[trace (fib a 0 1) | a in range x y if odd a]
 </div>
-        <button onclick="dump()">DUMP</button>
-        <button onclick="dumpSource()">COMPILE(BETA)</button>
+
+            <button onclick="dump()">DUMP</button>
+            <button onclick="dumpSource()">COMPILE(BETA)</button>
         </div>
         <div id="ast"></div>
-        <button onclick="run(compile(source()))">'eval(compile(source()))'</button>
-        <div id="env"></div>
+        <button onclick="kill.env.evil(compile(source()))">RunJS</button>
         <div class="clear"></div>
         <script type="text/javascript">
             function dump(){
@@ -38,13 +55,6 @@ id [trace (fib a 0 1) | a in range 1 50 if odd a]
             function dumpSource() {
                 try{
                     ace.edit("ast").setValue(compile(source()));
-                }catch(e){
-                    console.log(e);
-                }
-            }
-            function reval(){
-                try{
-                    return kill.parser.parse(ace.edit("editor").getValue().replace(/\r\n?/g,"\n"));
                 }catch(e){
                     console.log(e);
                 }
@@ -68,8 +78,6 @@ id [trace (fib a 0 1) | a in range 1 50 if odd a]
         <script>
             var editor = ace.edit("editor");
             var ast = ace.edit("ast");
-            var env = ace.edit("env");
-
             editor.setTheme("ace/theme/monokai");
             editor.getSession().setMode("ace/mode/haskell");
 
@@ -77,8 +85,6 @@ id [trace (fib a 0 1) | a in range 1 50 if odd a]
             ast.getSession().setMode("ast/mode/javascript");
             ast.setShowPrintMargin(false);
             ast.setReadOnly(true);
-
-            env.setTheme("ace/theme/chrome")
         </script>
     </body>
 </html>

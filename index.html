@@ -1,20 +1,20 @@
 <html>
-    
+
     <head>
-        <script type="text/javascript" src="src/vendor/underscore.js"></script>
+        <script type="text/javascript" src="src/vendor/lodash.js"></script>
         <script type="text/javascript" src="src/vendor/beautify.js"></script>
         <script type="text/javascript" src="src/vendor/jsDump.js"></script>
         <script type="text/javascript" src="src/vendor/ace-builds-1.1.5-min-noconflict/ace.js"></script>
-   
+
         <script type="text/javascript" src="src/kill.base.js"></script>
         <script type="text/javascript" src="src/kill.parser.js"></script>
         <script type="text/javascript" src="src/internal.js"></script>
         <script type="text/javascript" src="src/compiler.js"></script>
         <script type="text/javascript" src="src/env.js"></script>
-   
+
         <link rel="stylesheet" href="style.css" />
     </head>
-    
+
     <body>
         <h1>KILL workspace // Kimmy's Interpreter for Lambda the Limited</h1>
         <p>Press `F12` or open browser console to see
@@ -37,6 +37,7 @@ let x :=
 
 [trace (fib a 0 1) | a in range x y if odd a]
 </div>
+
             <button onclick="dump()">DUMP</button>
             <button onclick="dumpSource()">COMPILE(BETA)</button>
         </div>
@@ -79,12 +80,11 @@ let x :=
             var ast = ace.edit("ast");
             editor.setTheme("ace/theme/monokai");
             editor.getSession().setMode("ace/mode/haskell");
-            
+
             ast.setTheme("ace/theme/chrome");
             ast.getSession().setMode("ast/mode/javascript");
             ast.setShowPrintMargin(false);
             ast.setReadOnly(true);
         </script>
     </body>
-
 </html>

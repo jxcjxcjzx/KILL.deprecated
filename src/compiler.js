@@ -51,7 +51,7 @@ kill.compiler = (function (kill) {
         }
     };
 
-    handlers = {
+    keywords = {
       "let": function(form, ctx) {
         var bindings=form[1];
         var bindres=new Bindings([]);
@@ -88,7 +88,9 @@ kill.compiler = (function (kill) {
         var atom = form[1];
         var expr = form[2];
         return ctx([atom, "=", dump(transform(expr),id)].join(" "));
-      },
+      }
+    }
+    handlers = {
       "list": function (form, ctx) {
             var lst = [];
             for(i = 0; i < form[1].length; i++){

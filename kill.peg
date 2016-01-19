@@ -8,9 +8,20 @@ function Token(tag, value=undefined, isKeyword = false, isOperator = false) {
 
 var keywords = [];
 
+var escape_mapping = {
+    'e': "\e",
+    "t": "\t",
+    "\\": "\\",
+    "n": "\n",
+    "r": "\r",
+    "b": "\b"
+};
+
 function keyword(tag) {
     keywords.push(tag);
-    return new Token(tag, undefined, true, false);
+    return function(value = undefined) {
+        return new Token(tag, value, true, false)
+    };
 }
 
 function operator(tag) {
@@ -41,7 +52,7 @@ var Klambda = keyword("lambda");
 
 var Ktrue = keyword("true"),
     Kfalse = keyword("false"),
-    Kquote = keyword("qoute")
+    Kquote = keyword("quote")
 
 var Oarrow = operator("->");
 var Oassign = operator(":=");
@@ -56,9 +67,13 @@ var klist = function (value) {
     return new KillObject("list", value, true);
 };
 
+var kcomprehension = function(expr, binding) {
+    return new KillObject("list_comp", {expr:expr, binding:binding}, true);
+};
+
 var kunit = function () {
-    return new KillObject("unit", "()", true);
-}
+    return new KillObject("unit", "()", false);
+};
 
 }
 
@@ -87,15 +102,19 @@ lexp =
 
 if =
   _if:t_if blank* cond:fexp blank* t_then blank* then:fexp blank* t_else blank* _else:fexp
-  {return [Kif, cond, then, _else];}
+  {return Kif({test: cond, consequence: then, alternative: _else});}
 
 begin =
   t_begin es:(blank* newline? blank* "(" e:exp ")" {return e})+ blank* delim
-  { return [Kbegin].concat(es);}
+  { return Kbegin(es);}
 
 fexp =
-  l:aexp blank* rs:(blank* f:aexp {return f.length&&["list","list_comp"].indexOf(f[0]) > -1?[f]:f;})*
-  { return rs.length? rs.reduce(function(l,r){return [l].concat(r);},l) : [l];}
+  l:aexp blank* rs:(blank* f:aexp {return f;})*
+{
+   return rs.length
+          ? rs.reduce(function(l,r){return [l].concat(r);},l)
+          : [l];
+}
 
 aexp =
   literal /
@@ -104,7 +123,7 @@ aexp =
 
 let = l:t_let blank+ bs:bindings
 {
-	return [Klet, bs]
+	return Klet(bs);
 }
 
 bindings =
@@ -117,25 +136,20 @@ binding =
 
 lambda =
   ps:param? blank* (op_arrow blank* newline?) blank* exp:exp sep?
-  {return [Klambda , ps?[ps]:[], exp];} /
-  p:param blank+ exp:exp sep? {return [Klambda, [p],exp]} /
-  p:param blank* l:lambda {return [Klambda ,[p], l]}  /
-  uc_lambda
-
-uc_lambda = "\\(" id:identifier blank* ids:(sep? blank* id:identifier {return id;})* ")" blank* exp:exp
-{
-    return ["uc_lambda", [id].concat(ids),exp]
-}
+  {return Klambda({params: ps?[ps]:[], body: exp});} /
+  p:param blank+ exp:exp sep? {return Klambda({params: [p], body: exp});} /
+  p:param blank* l:lambda {return Klambda({params: [p], body: l})}
 
 set = set:t_set blank* id:identifier blank+ exp:exp
 {
-	return [Kset, id, exp];
+	return Kset({name: id, value: exp});
 }
 
 newline = "\n"
 
 param = "\\" id:identifier {return id;}
- t_qt = "'"
+
+t_qt = "'"
 
 t_let = "let"
 t_if = "if"
@@ -196,25 +210,24 @@ digits = ds:[0-9]+
 quote = "(" e:exp es:exp* ")"
   {return es.length? [e].concat(es): [e];}
 
-literal = digits / bools / unit / list
+literal = digits / bools / unit / list / string
 
 list = "[" l:list_item "]" {return klist(l);} / comprehension
 
 comprehension = "[" blank* exp:exp blank* newline? blank*"|" blank* bind:in_bindings blank* "]"
 {
-    return ["list_comp",
-    		bind,
-            bind
+    return kcomprehension(
+    		bind
                 .slice(0)
                 .reverse()
-                .reduce((a,b) => ["lambda",[b[0]], a],
-                        exp)
-           ]
+                .reduce((a,b) => Klambda({params: [b[0]], body: a}),
+                        exp),
+    		bind)
 }
 
 in_binding =  id:identifier blank* "in" blank* exp:exp cond:(blank* t_if blank* exp:exp blank* {return exp;})?
 {
-    return cond?[id,[["filter",["lambda",[id], cond]], exp]]:[id, exp]
+    return {name: id, value: exp, condition: cond};
 }
 
 in_bindings = i:in_binding ins:(sep i:in_binding {return i})*
@@ -233,9 +246,24 @@ unit = "(" blank* ")" {return undefined;}
 
 bools = bool:("true" / "false")
 {
-    return bool == "true" ? Ktrue : Kfalse;
+    return bool == "true" ? Ktrue(true) : Kfalse(false);
 }
 
 squote = t_qt exp:exp {return ["quote"].concat(exp);}
+
+string = "\"" str:string_literal "\"" {return string(str);}
+
+string_literal = nd:(non_dquote / escape)* {return nd.join("")}
+
+dquote = "\""
+
+non_dquote= x:[^"\\] {return x;}
+
+escape= "\\" x:escaped {return escape_mapping[x];} /
+    "\\u" uni:unicode_seq {return String.fromCodePoint(parseInt(uni, 16));}
+
+escaped = "\\" / "\"" / "b" / "e" / "n" / "r" / "t"
+
+unicode_seq = seq:[a-eA-E-0-9]+ {return seq.join("")}
 
 sep = blank* "," newline? blank*

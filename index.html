@@ -22,10 +22,9 @@ id [trace (fib a 0 1) | a in range 1 50 if odd a]
 </div>
         <button onclick="dump()">DUMP</button>
         <button onclick="dumpSource()">COMPILE(BETA)</button>
-        <button onclick="run(reval())">EVAL</button>
         </div>
         <div id="ast"></div>
-        <button onclick="">'eval(compile(source()))'</button>
+        <button onclick="run(compile(source()))">'eval(compile(source()))'</button>
         <div id="env"></div>
         <div class="clear"></div>
         <script type="text/javascript">

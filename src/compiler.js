@@ -240,6 +240,8 @@ range = curry(function (start, end) {
     return arr;
 });
 
+id = x => x;
+
 zero = function(x){return x == 0;};
 odd = function (x) {
     return (x%2 != 0);

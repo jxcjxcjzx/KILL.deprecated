@@ -75,7 +75,7 @@ describe("Compiler", function () {
         )).toBe("if ( a(b) ) return a(c);\n"+
         "return b(c);");
     });
-    it("compile who program", function () {
+    it("compile whole program", function () {
         expect(kill.compiler.compile(
             kill.parser.parse(
                     "let x:= 1\n" +

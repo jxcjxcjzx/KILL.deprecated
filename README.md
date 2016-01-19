@@ -1,4 +1,4 @@
-KILL -- the lambda evaluator
+KILL - Keep it lightweight & lint
 ====
 
 <font color="red">***online***</font> http://kenpusney.github.io/KILL/
@@ -7,7 +7,7 @@ KILL -- the lambda evaluator
 
 ## Intro
 
-`KILL` (which stands for "`Kimmy's Interpreter for Lambda Limited`") is a limited lambda evaluator. Since it's syntax borrowed from several functional programming languages, it also have some outstanding features like `currying` `continuation` `closure` etc.
+`KILL` is a dynamic-typed programming language which compiles to JavaScript. Since it's syntax borrowed from several functional programming languages, it also have functional features like `currying`, `closure`, `list comprehension`etc.
 
 ## Features
 
@@ -17,8 +17,9 @@ KILL -- the lambda evaluator
       + auto currying
       + closure
       + recursion
-  + Continuations
-      + call/cc
+  + <del>Continuations<del/>
+      + <del>call/cc</del>
+  + <del>Compile-time AST Transform</del>
 
 ## Syntax
 
@@ -27,7 +28,7 @@ KILL -- the lambda evaluator
 The keyword `let` should bind value to an object, where the object is on the left hand side of `:=` and the value on right.
 
 ```haskell
-let x := id 1
+let x := 1
 trace x
 
 let f := \x x+1
@@ -65,60 +66,46 @@ let add_two := f 2
 trace (add_one 1)
 trace (add_two 1)
 ```
-Currying happens all the time on evaluating, even it just product a value. So, to prevent currying, use `quote` or `'` or `id` to wrap.
-```
-let f := id 1
-let g := quote 2
-
-trace f
-trace g
-```
 
 ### sequential expression
 
-A sequential expression begins with `begin`, ends with `;`, even it's sequential processing, it always return it's first expression when no `callcc`.
+A sequential expression begins with `begin`, ends with `end`, even it's sequential processing, it always return it's first expression when no `callcc`.
 
 ```haskell
-let f := -> begin (trace 1) (trace 2) (trace 3);
-trace (f)
+let f := -> begin trace 1; trace 2; trace 3; end
+f []
 ```
 
-by means of `callcc` when can get a regular `begin`:
-```
-let f := -> callcc (\ret begin (trace 1) (trace 2) (ret (trace 3));)
-trace (f)
-```
-which returns all passed to `ret`.
 
 ### conditional expression & recursion
 
 conditional expression `if ... then ... else` is for branching executions. see the factorial for example:
 ```
 let fact := \i \v ->
-        if is_zero i then id v else fact (pred i) (mul i v)
-trace (fact 5)
+        if zero i then id v else fact (pred i) (mul i v)
+trace (fact 5 1)
 ```
 
 ### set! operator
 
 `set!` operator borrowed from Scheme, which changes the value of object to it's closure.
 ```haskell
-let x := id 1
+let x := 1
 trace x
-set!x id 2
+set!x 2
 trace x
 ```
 
 ### list & list processing
 List is wrapped by `[]`, within it is a comma separated expression list.
 ```
-let a := id ['1,'2,'3];
+let a := [1,2,3]
 
 map trace a
 ```
 
 Basic list operator:
-`first` `rest` `length` `map` `reduce` ...(see `src/cps.js` for more information)
+`first` `rest` `length` `map` `reduce` ...(see `src/env.js` for more information)
 
 
 ## Advanced Concepts
@@ -145,30 +132,37 @@ let gen := \x -> -> set!x succ x
 
 let b := gen 0
 
-trace (b)
-trace (b)
+--- sadly there is no intermediate call action now.
+trace (b [])
+trace (b [])
 ```
 
 For more information, see [Closure](http://en.wikipedia.org/wiki/Closure_(computer_programming))
 
-### Continuations
+### <del>Continuations</del>
 
-todo
+### List Comprehension
+```
+let fib :=
+    \i \m \n ->
+        if zero i
+        then id m
+        else fib (sub i 1) n (add m n)
 
-### Iteration
+let x :=
+        1,
+    y :=
+        24
+
+[trace (fib a 0 1) | a in (range x y) if odd a]
+```
 
 todo
 
 ## TODOs
 
-  + Full List & Tuple support
-  + Types (Annotation, Checking, Inference)
+  + String support
+  + <del>Types (Annotation, Checking, Inference)</del>
   + Module System
-  + Compiler
+  + <del>Compiler</del>
   + Documents. 
-
-## References
-
-  + 王垠：怎样写一个解释器 http://www.yinwang.org/blog-cn/2012/08/01/interpreter/
-  + Belleve Invis：预告：从解释器到抽象解释 http://typeof.net/m/trailer-from-a-interpreter-to-abstract-interpretation.html
-  

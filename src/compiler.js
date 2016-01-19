@@ -1,16 +1,19 @@
+/* global List, Tuple, id, trace */
+/* global kill */
+
 /**
  * Created by Kim on 2014/8/1.
  */
-
+"use strict";
 kill.compiler = (function (kill) {
 
-    var Lambda = function(argc,argv, body){
+    var Lambda = function (argc, argv, body) {
         this.argc = argc;
         this.argv = argv;
         this.body = body;
         this.merge = function (lmbd) {
-            return new Lambda(argc+lmbd.argc, argv.concat(lmbd.argv),lmbd.body);
-        }
+            return new Lambda(argc + lmbd.argc, argv.concat(lmbd.argv), lmbd.body);
+        };
     };
 
     var Binding = function (name, val) {
@@ -18,12 +21,12 @@ kill.compiler = (function (kill) {
         this.val = val;
     };
 
-    var Bindings = function(bindings){
+    var Bindings = function (bindings) {
         this.bindings = bindings;
         this.append = function (binding) {
             this.bindings.push(binding);
             return this;
-        }
+        };
     };
 
     var FCall = function (name, args) {
@@ -31,15 +34,15 @@ kill.compiler = (function (kill) {
         this.args = args;
     };
 
-    var If = function(cond, consequence, alternative){
+    var If = function (cond, consequence, alternative) {
         this.cond = cond;
         this.consequence = consequence;
         this.alternative = alternative;
     };
 
-    var Statements = function () {
-        var stmts = [];
-        this.append = function(stmt){
+    var Statements = function (stmts) {
+        stmts = stmts || [];
+        this.append = function (stmt) {
             stmts.push(stmt);
             return this;
         };
@@ -48,7 +51,7 @@ kill.compiler = (function (kill) {
         };
         this.get = function (index) {
             return stmts[index];
-        }
+        };
     };
 
     keywords = {
@@ -132,7 +135,7 @@ kill.compiler = (function (kill) {
               return ctx(fn);
           })
         }
-        if(typeof(form) == "String"){
+        if (typeof (form) == "string") {
             /**
              * @TODO:
              * Syntax Translation:
@@ -147,104 +150,68 @@ kill.compiler = (function (kill) {
         return ctx(form);
     };
 
-    var dump =function (form, ctx) {
+    var dump = function (form, ctx) {
         ctx = ctx || trace;
-        if(form instanceof Statements){
+        if (form instanceof Statements) {
             var stmts = [];
-            for(var i = 0; i < form.count(); i++){
-                if((form.get(i) instanceof Array) && form.get(i).length)
+            for (var i = 0; i < form.count(); i++) {
+                if ((form.get(i) instanceof Array) && form.get(i).length)
                     continue;
-                stmts.push(dump(form.get(i), id));
+                if (i == form.count() - 1) {
+                    stmts.push("return " + dump(form.get(i), id));
+                } else {
+                    stmts.push(dump(form.get(i), id));
+                }
             }
-            return ctx(stmts.join(";\n"));
+            return ctx("(function(){" + stmts.join(";\n") + "}());");
         }
-        if(form instanceof Lambda)
-            return ctx("(function("+ dump(form.argv,id) +"){ return " + dump(form.body,id) + ";})");
-        else if(form instanceof If){
-            return ctx("( "+dump(form.cond,id)+" ) ? " +
-                "( "+dump(form.consequence,id)+" ) : " +
-                "( "+dump(form.alternative,id)+" )");
+        if (form instanceof Lambda)
+            return ctx("(function(" + dump(form.argv, id) + "){ return " + dump(form.body, id) + ";})");
+        else if (form instanceof If) {
+            return ctx("( " + dump(form.cond, id) + " ) ? " +
+                "( " + dump(form.consequence, id) + " )" +
+                ":" +
+                "( " + dump(form.alternative, id) + " )");
         }
-        else if(form instanceof FCall){
+        else if (form instanceof FCall) {
             return dump(form.args, function (args) {
-                return ctx(dump(form.name,id)+"("+args+")");
-            })
-        }else if(form instanceof Bindings){
-            return ctx("var "+form.bindings.map(function (binding) {
-                return binding.name+"="+dump(binding.val,id);
+                return ctx(dump(form.name, id) + "(" + args + ")");
+            });
+        } else if (form instanceof Bindings) {
+            return ctx("var " + form.bindings.map(function (binding) {
+                return binding.name + "=" + dump(binding.val, id);
             }).join(', '));
-        }else if(form instanceof List){
+        } else if (form instanceof List) {
             var lst = [];
-            for(i = 0; i < form.list.length; i++){
-                lst.push(dump(form.list[i],id));
+            for (i = 0; i < form.list.length; i++) {
+                lst.push(dump(form.list[i], id));
             }
-            return ctx("[" + lst.join(", ")+"]");
-        }else if(form instanceof Tuple){
+            return ctx("[" + lst.join(", ") + "]");
+        } else if (form instanceof Tuple) {
             var tup = [];
-            for(i = 0; i < form.size(); i++){
-                tup.push(dump(form.get(i),id));
+            for (i = 0; i < form.size(); i++) {
+                tup.push(dump(form.get(i), id));
             }
-            return ctx("tuple("+tup.join(", ")+")");
+            return ctx("tuple(" + tup.join(", ") + ")");
         }
         return ctx(form);
     };
 
     var compile = function (tree) {
-        var stmts = new Statements();
-        for(var i=0; i < tree.length; i++){
-            stmts.append(transform(tree[i],id));
+        var stmts = new Statements([]);
+        for (var i = 0; i < tree.length; i++) {
+            stmts.append(transform(tree[i], id));
         }
-        return dump(stmts,id);
+        return dump(stmts, id);
     };
 
     kill.compiler = {
-        dump:dump,
-        transform:transform,
-        compile:compile,
-        Lambda:Lambda,
-        FCall:FCall,
-        Binding:Binding
+        dump: dump,
+        transform: transform,
+        compile: compile,
+        Lambda: Lambda,
+        FCall: FCall,
+        Binding: Binding
     };
     return kill.compiler;
 }(kill));
-
-function curry(fn,obj) {
-    function curry$$(fn, len, args){
-        return function (arg) {
-            if(len <= 1) return fn.apply(obj,args.concat([arg]));
-            return curry$$(fn, len-1, args.concat(arg));
-        }
-    }
-    return curry$$(fn, fn.length,[]);
-}
-
-add = curry(function (a,b) {
-    return a + b;
-});
-
-sub = curry(function (a, b) {
-    return a - b;
-});
-
-mul = curry(function (a, b) {
-    return a * b;
-});
-
-filter = curry(function(pred,lst){
-    return lst.filter(pred);
-});
-
-range = curry(function (start, end) {
-    var arr = [];
-    for(var i = start; i < end; i++){
-        arr.push(i);
-    }
-    return arr;
-});
-
-id = x => x;
-
-zero = function(x){return x == 0;};
-odd = function (x) {
-    return (x%2 != 0);
-};
